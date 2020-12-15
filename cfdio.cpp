@@ -70,7 +70,7 @@ void writeplotfile(int m, int n, int scale) {
     gnuplot << "set xrange [" << 1 - scale << ":" << m + scale << "]\n";
     gnuplot << "set yrange [" << 1 - scale << ":" << n + scale << "]\n";
     gnuplot << "plot \"colormap.dat\" w rgbimage, \"velocity.dat\" u 1:2:(" << scale << "*0.75*$3/sqrt($3**2+$4**2)):("
-            << scale << "*0.75*&4/sqrt($3**2+$4**2)) with vectors lc rgb \"#7F7F7F\"";
+            << scale << "*0.75*$4/sqrt($3**2+$4**2)) with vectors lc rgb \"#7F7F7F\"";
     gnuplot.close();
     std::cout << "\nWritten gnuplot script 'cuda-cfd.plt'\n";
 }
