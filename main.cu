@@ -1,95 +1,105 @@
-//
-// Created by karthik on 15/12/20.
-//
-
-#include <algorithm>
-#include <cassert>
 #include <iostream>
-#include <vector>
-#include <chrono>
+#include <stdlib.h>
+#include <cmath>
+#include "boundary.h"
+#include "jacobi.h"
+#include "cfdio.h"
 
-// CUDA kernel for vector addition
-// __global__ mean this is called from CPU and is run on GPU
-__global__ void vectorAdd(const int *__restrict a, const int *__restrict b, int *__restrict c, int N) {
-    // calculate global thread id
-    int tid = (blockIdx.x * blockDim.x) + threadIdx.x;
-    if (tid < N) c[tid] = a[tid] + b[tid];
-}
+int main(int argc, char **argv) {
+    int printfreq = 1000;
+    float error, bnorm;
+    float tolerance = 0;
 
-void verify_result(std::vector<int> &a, std::vector<int> &b, std::vector<int> &c) {
-    for (int i = 0; i < a.size(); i++) {
-        assert(c[i] == a[i] + b[i]);
-    }
-}
+    //main arrays
+    float **psi;
+    //temp versions of main array
+    float **psitmp;
 
-int main() {
-    constexpr int N = 1 << 16;
-    constexpr size_t bytes = sizeof(int) * N;
+    //comman line args
+    int scalefactor, numiter;
 
-    // vector for holding CPU side data
-    std::vector<int> a;
-    a.reserve(N);
-    std::vector<int> b;
-    b.reserve(N);
-    std::vector<int> c;
-    c.reserve(N);
+    //simulation sizes
+    int bbase = 10;
+    int hbase = 10;
+    int wbase = 5;
+    int mbase = 32;
+    int nbase = 32;
 
-    for (int i = 0; i < N; i++) {
-        a.push_back(rand() % 100);
-        b.push_back(rand() % 100);
-    }
+    int m, n, b, h, w;
+    int iter;
 
-    auto start = std::chrono::system_clock::now();
-
-    for (int i = 0; i < N; i++) {
-        c[i] = a[i] + b[i];
+    if (argc != 3) {
+        std::cout << "Usage: cfd-cuda <scale> <numiter>\n";
     }
 
-    auto end = std::chrono::system_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "Serial addition : " << elapsed_seconds.count() << "s \n";
-    c.clear();
-    c.reserve(N);
+    scalefactor = atoi(argv[1]);
+    numiter = atoi(argv[2]);
 
-    // allocate memory on device
-    int *d_a, *d_b, *d_c;
-    cudaMalloc(&d_a, bytes);
-    cudaMalloc(&d_b, bytes);
-    cudaMalloc(&d_c, bytes);
+    std::cout << "Scale Factor = " << scalefactor << ", iterations " << numiter << "\n";
 
-    // copy data from host to device (cpu to gpu)
-    cudaMemcpy(d_a, a.data(), bytes, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_b, b.data(), bytes, cudaMemcpyHostToDevice);
+    n = bbase * scalefactor;
+    h = hbase * scalefactor;
+    w = wbase * scalefactor;
+    m = mbase * scalefactor;
+    n = nbase * scalefactor;
 
-    // threads per CTA (1024)
-    int NUM_THREADS = 1 << 10;
+    std::cout << "Running CFD on" << m << " x " << n << " grid.\n";
 
-    // CTAs per grid
-    // we need to launch at least as many threads as we have elements
-    // adds extra CTA to the grid if N cannot be evenly divided by NUM_THREADS
-    int NUM_BLOCKS = (N + NUM_THREADS - 1) / NUM_THREADS;
+    psi = new float[(m + 2) * (n + 2)];
+    psitmp = new float[(m + 2) * (n + 2)];
 
-    start = std::chrono::system_clock::now();
-    // launch kernel on GPU
-    // asynchronous
-    vectorAdd<<<NUM_BLOCKS, NUM_THREADS>>>(d_a, d_b, d_c, N);
+    for (int i = 0; i < (m + 2) * (n + 2); i++) {
+        psi[i] = 0;
+    }
 
-    // copy sum vector from device to host
-    // synchronous: waits for prior kernel launch to complete
-    cudaMemcpy(c.data(), d_c, bytes, cudaMemcpyDeviceToHost);
+    //set the psi boundary conditions
+    boundarypsi(psi, m, n, b, h, w);
 
-    end = std::chrono::system_clock::now();
+    //compute normalization factor for error
+    bnorm = 0;
 
-    elapsed_seconds = end - start;
-    std::cout << "Parallel addition : " << elapsed_seconds.count() << "s \n";
+    // can be parallelised like sum-reduction maybe
+    for (int i = 0; i < (m + 2) * (n + 2); i++) {
+        bnorm += psi[i] * psi[i];
+    }
+    bnorm = std::sqrt(bnorm);
 
-    verify_result(a, b, c);
+    // begin iterative jacobi loop
+    std::cout << "Starting main loop...\n\n";
 
-    cudaFree(d_a);
-    cudaFree(d_b);
-    cudaFree(d_c);
+    for (iter = 1; iter <= numiter; iter++) {
+        //calculate psi for next iteration
+        jacobistep(psitmp, psi, m, n);
 
-    std::cout << "COMPLETED SUCCESSFULLY !";
+        if (iter == numiter) {
+            error = deltasq(psitmp, psi, m, n);
+            error = std::sqrt(error);
+            error = error / bnorm;
+        }
+
+        //copy back
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= m; j++) {
+                psi[i * (m + 2) + j] = psitmp[i * (m + 2) + j];
+            }
+        }
+
+        //print loop info
+        std::cout << "Completed iteration " << iter << "\n";
+    }
+
+    if (iter > numiter)iter = numiter;
+    std::cout << "\n...finished\n";
+    std::cout << "After " << iter << " iterations, the error is " << error << "\n";
+
+    //write output files
+
+    writedatafiles(psi, m, n, scalefactor);
+    writeplotfile(m, n, scalefactor);
+
+    //fre un-needed arrays
+    delete[] psi;
+    delete[] psitmp;
 
     return 0;
 }

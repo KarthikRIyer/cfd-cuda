@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(cfd-cuda LANGUAGES CXX CUDA)
 
-add_executable(cfd-cuda main.cu)
+add_executable(cfd-cuda
+        main.cu
+        boundary.cpp
+        jacobi.cu
+        cfdio.cpp)
 
 # Request that particles be built with -std=c++11
 # As this is a public compile feature anything that links to
