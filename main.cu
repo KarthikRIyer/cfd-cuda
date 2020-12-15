@@ -11,9 +11,9 @@ int main(int argc, char **argv) {
     float tolerance = 0;
 
     //main arrays
-    float **psi;
+    float *psi;
     //temp versions of main array
-    float **psitmp;
+    float *psitmp;
 
     //comman line args
     int scalefactor, numiter;
