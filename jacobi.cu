@@ -11,9 +11,9 @@ void jacobistep(float *psinew, float *psi, int m, int n) {
 }
 
 // parallelise
-double deltasq(double *newarr, double *oldarr, int m, int n) {
-    double dsq = 0;
-    double tmp;
+double deltasq(float *newarr, float *oldarr, int m, int n) {
+    float dsq = 0;
+    float tmp;
 
     for (int i = 1; i <= m; i++) {
         for (int j = 1; j <= m; j++) {
