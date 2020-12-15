@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 
     std::cout << "Scale Factor = " << scalefactor << ", iterations " << numiter << "\n";
 
-    n = bbase * scalefactor;
+    b = bbase * scalefactor;
     h = hbase * scalefactor;
     w = wbase * scalefactor;
     m = mbase * scalefactor;
@@ -85,7 +85,9 @@ int main(int argc, char **argv) {
         }
 
         //print loop info
-        std::cout << "Completed iteration " << iter << "\n";
+        if (iter % printfreq == 0) {
+            std::cout << "Completed iteration " << iter << "\n";
+        }
     }
 
     if (iter > numiter)iter = numiter;
