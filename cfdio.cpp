@@ -4,7 +4,7 @@
 #include <iostream>
 
 void writedatafiles(float *psi, int m, int n, int scale) {
-    ofstream cfile, vfile;
+    std::ofstream cfile, vfile;
     typedef float vecvel[2];
     typedef int vecrgb[3];
 
@@ -61,7 +61,7 @@ void writedatafiles(float *psi, int m, int n, int scale) {
 }
 
 void writeplotfile(int m, int n, int scale) {
-    ofstream gnuplot;
+    std::ofstream gnuplot;
     gnuplot.open("cuda-cfd.plt");
     gnuplot << "set size square\n";
     gnuplot << "set key off\n";
