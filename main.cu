@@ -8,7 +8,6 @@
 int main(int argc, char **argv) {
     int printfreq = 1000;
     float error, bnorm;
-    float tolerance = 0;
 
     //main arrays
     float *psi;

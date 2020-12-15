@@ -1,7 +1,7 @@
 #include "jacobi.h"
 
 // parallelise
-void jacobistep(float **psinew, double **psi, int m, int n) {
+void jacobistep(float *psinew, float *psi, int m, int n) {
     for (int i = 1; i <= m; i++) {
         for (int j = 1; j <= m; j++) {
             psinew[i * (m + 2) + j] = 0.25f * (psi[(i - 1) * (m + 2) + j] + psi[(i + 1) * (m + 2) + j] +
