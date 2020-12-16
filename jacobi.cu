@@ -17,9 +17,6 @@ __global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int 
                              psi_d[(row) * (m + 2) + col - 1] + psi_d[(row) * (m + 2) + col + 1]);
 
             __syncthreads();
-
-            double tmp = psinew_d[row * (m + 2) + col] - psi_d[row * (m + 2) + col];
-            d_error += tmp * tmp;
             psi_d[row * (m + 2) + col] = psinew_d[row * (m + 2) + col];
             __syncthreads();
         }
@@ -58,14 +55,14 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     jacobikernel<<<blocks, threads>>>(psi_d, psinew_d, m, n, numiter);
 
     cudaMemcpy(psi, psi_d, bytes, cudaMemcpyDeviceToHost);
+//
+//    for (int i = 0; i<(m+2)*(n+2); i++){
+//        std::cout<<psi[i]<<" ";
+//    }
 
-    for (int i = 0; i<(m+2)*(n+2); i++){
-        std::cout<<psi[i]<<" ";
-    }
-
-    double e;
-    cudaMemcpyFromSymbol(&e, "d_error", sizeof(e), 0, cudaMemcpyDeviceToHost);
-    error = e;
+//    double e;
+//    cudaMemcpyFromSymbol(&e, "d_error", sizeof(e), 0, cudaMemcpyDeviceToHost);
+//    error = e;
 
     cudaFree(psi_d);
     cudaFree(psinew_d);
