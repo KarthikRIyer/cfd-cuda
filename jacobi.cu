@@ -9,7 +9,7 @@ __global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int 
     int row = blockIdx.y * blockDim.y + threadIdx.y;
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (row > 2 && row <= m && col > 2 && col <= n) {
+    if (row > 0 && row <= m && col > 0 && col <= n) {
         for (int i = 1; i <= numiter; i++) {
             d_error = 0;
             psinew_d[row * (m + 2) + col] =
