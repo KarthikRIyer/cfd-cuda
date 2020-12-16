@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <cmath>
+#include <chrono>
 #include "boundary.h"
 #include "jacobi.h"
 #include "cfdio.h"
@@ -65,7 +66,7 @@ int main(int argc, char **argv) {
 
     // begin iterative jacobi loop
     std::cout << "Starting main loop...\n\n";
-
+    auto start = std::chrono::system_clock::now();
 //    for (iter = 1; iter <= numiter; iter++) {
 //        //calculate psi for next iteration
 //        jacobistep(psitmp, psi, m, n);
@@ -98,7 +99,13 @@ int main(int argc, char **argv) {
     //write output files
 
     writedatafiles(psi, m, n, scalefactor);
-    writeplotfile(m, n, scalefactor);
+    writeplotfile(m, n, scalefactor)
+
+    auto end = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "\n\nelapsed time: " << elapsed_seconds.count() << " s\n";
 
     //fre un-needed arrays
     delete[] psi;
