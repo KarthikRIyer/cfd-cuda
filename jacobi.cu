@@ -1,4 +1,5 @@
 #include "jacobi.h"
+#include <iostream>
 
 __device__ float d_error;
 
