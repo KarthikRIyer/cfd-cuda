@@ -19,7 +19,7 @@ __global__ void jacobikernel(float *psi_d, float *psinew_d, int m, int n, int nu
 
             float tmp = psinew_d[row * (m + 2) + col] - psi_d[row * (m + 2) + col];
             d_error += tmp * tmp;
-            psi[row * (m + 2) + col] = psinew_d[row * (m + 2) + col];
+            psi_d[row * (m + 2) + col] = psinew_d[row * (m + 2) + col];
             __syncthreads();
         }
     }
