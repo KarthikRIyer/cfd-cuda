@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     int hbase = 10;
     int wbase = 5;
     int mbase = 32;
-    int nbase = 32;
+    int nbase = mbase;
 
     int m, n, b, h, w;
     int iter;
@@ -66,32 +66,34 @@ int main(int argc, char **argv) {
     // begin iterative jacobi loop
     std::cout << "Starting main loop...\n\n";
 
-    for (iter = 1; iter <= numiter; iter++) {
-        //calculate psi for next iteration
-        jacobistep(psitmp, psi, m, n);
+//    for (iter = 1; iter <= numiter; iter++) {
+//        //calculate psi for next iteration
+//        jacobistep(psitmp, psi, m, n);
+//
+//        if (iter == numiter) {
+//            error = deltasq(psitmp, psi, m, n);
+//            error = std::sqrt(error);
+//            error = error / bnorm;
+//        }
+//
+//        //copy back
+//        for (int i = 1; i <= m; i++) {
+//            for (int j = 1; j <= m; j++) {
+//                psi[i * (m + 2) + j] = psitmp[i * (m + 2) + j];
+//            }
+//        }
+//
+//        //print loop info
+//        if (iter % printfreq == 0) {
+//            std::cout << "Completed iteration " << iter << "\n";
+//        }
+//    }
 
-        if (iter == numiter) {
-            error = deltasq(psitmp, psi, m, n);
-            error = std::sqrt(error);
-            error = error / bnorm;
-        }
+    jacobiiter_gpu(psi, m, n, numiter, error);
 
-        //copy back
-        for (int i = 1; i <= m; i++) {
-            for (int j = 1; j <= m; j++) {
-                psi[i * (m + 2) + j] = psitmp[i * (m + 2) + j];
-            }
-        }
-
-        //print loop info
-        if (iter % printfreq == 0) {
-            std::cout << "Completed iteration " << iter << "\n";
-        }
-    }
-
-    if (iter > numiter)iter = numiter;
+//    if (iter > numiter)iter = numiter;
     std::cout << "\n...finished\n";
-    std::cout << "After " << iter << " iterations, the error is " << error << "\n";
+    std::cout << "After " << numiter << " iterations, the error is " << error << "\n";
 
     //write output files
 
