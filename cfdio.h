@@ -1,6 +1,6 @@
 #pragma once
 
-void writedatafiles(float *psi, int m, int n, int scale);
+void writedatafiles(double *psi, int m, int n, int scale);
 
 void writeplotfile(int m, int n, int scale);
 

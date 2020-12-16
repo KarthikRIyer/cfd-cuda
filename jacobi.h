@@ -1,7 +1,7 @@
 #pragma once
 
-void jacobistep(float *psinew, float *psi, int m, int n);
+void jacobistep(double *psinew, double *psi, int m, int n);
 
-double deltasq(float *newarr, float *oldarr, int m, int n);
+double deltasq(double *newarr, double *oldarr, int m, int n);
 
-void jacobiiter_gpu(float *psi, int m, int n, int numiter, float &error);
+void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error);

@@ -8,12 +8,12 @@
 
 int main(int argc, char **argv) {
     int printfreq = 1000;
-    float error, bnorm;
+    double error, bnorm;
 
     //main arrays
-    float *psi;
+    double *psi;
     //temp versions of main array
-    float *psitmp;
+    double *psitmp;
 
     //comman line args
     int scalefactor, numiter;
@@ -45,8 +45,8 @@ int main(int argc, char **argv) {
 
     std::cout << "Running CFD on" << m << " x " << n << " grid.\n";
 
-    psi = new float[(m + 2) * (n + 2)];
-    psitmp = new float[(m + 2) * (n + 2)];
+    psi = new double[(m + 2) * (n + 2)];
+    psitmp = new double[(m + 2) * (n + 2)];
 
     for (int i = 0; i < (m + 2) * (n + 2); i++) {
         psi[i] = 0;

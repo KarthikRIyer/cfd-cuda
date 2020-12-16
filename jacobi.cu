@@ -1,9 +1,9 @@
 #include "jacobi.h"
 #include <iostream>
 
-__device__ float d_error;
+__device__ double d_error;
 
-__global__ void jacobikernel(float *psi_d, float *psinew_d, int m, int n, int numiter) {
+__global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int numiter) {
 
     // calculate each thread's global row and col
     int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -18,7 +18,7 @@ __global__ void jacobikernel(float *psi_d, float *psinew_d, int m, int n, int nu
 
             __syncthreads();
 
-            float tmp = psinew_d[row * (m + 2) + col] - psi_d[row * (m + 2) + col];
+            double tmp = psinew_d[row * (m + 2) + col] - psi_d[row * (m + 2) + col];
             d_error += tmp * tmp;
             psi_d[row * (m + 2) + col] = psinew_d[row * (m + 2) + col];
             __syncthreads();
@@ -26,7 +26,7 @@ __global__ void jacobikernel(float *psi_d, float *psinew_d, int m, int n, int nu
     }
 }
 
-//void jacobistep(float *psinew, float *psi, int m, int n) {
+//void jacobistep(double *psinew, double *psi, int m, int n) {
 //    for (int i = 1; i <= m; i++) {
 //        for (int j = 1; j <= n; j++) {
 //            psinew[i * (m + 2) + j] = 0.25f * (psi[(i - 1) * (m + 2) + j] + psi[(i + 1) * (m + 2) + j] +
@@ -35,11 +35,11 @@ __global__ void jacobikernel(float *psi_d, float *psinew_d, int m, int n, int nu
 //    }
 //}
 
-void jacobiiter_gpu(float *psi, int m, int n, int numiter, float &error) {
+void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
 
-    float *psi_d;
-    float *psinew_d;
-    size_t bytes = sizeof(float) * (m + 2) * (n + 2);
+    double *psi_d;
+    double *psinew_d;
+    size_t bytes = sizeof(double) * (m + 2) * (n + 2);
 
     // allocate memory on gpu
     cudaMalloc(&psi_d, bytes);
@@ -63,7 +63,7 @@ void jacobiiter_gpu(float *psi, int m, int n, int numiter, float &error) {
         std::cout<<psi[i]<<" ";
     }
 
-    float e;
+    double e;
     cudaMemcpyFromSymbol(&e, "d_error", sizeof(e), 0, cudaMemcpyDeviceToHost);
     error = e;
 
@@ -72,7 +72,7 @@ void jacobiiter_gpu(float *psi, int m, int n, int numiter, float &error) {
 }
 
 // parallelise
-void jacobistep(float *psinew, float *psi, int m, int n) {
+void jacobistep(double *psinew, double *psi, int m, int n) {
     for (int i = 1; i <= m; i++) {
         for (int j = 1; j <= m; j++) {
             psinew[i * (m + 2) + j] = 0.25f * (psi[(i - 1) * (m + 2) + j] + psi[(i + 1) * (m + 2) + j] +
@@ -82,9 +82,9 @@ void jacobistep(float *psinew, float *psi, int m, int n) {
 }
 
 // parallelise
-double deltasq(float *newarr, float *oldarr, int m, int n) {
-    float dsq = 0;
-    float tmp;
+double deltasq(double *newarr, double *oldarr, int m, int n) {
+    double dsq = 0;
+    double tmp;
 
     for (int i = 1; i <= m; i++) {
         for (int j = 1; j <= m; j++) {

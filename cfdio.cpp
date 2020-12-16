@@ -3,9 +3,9 @@
 #include <fstream>
 #include <iostream>
 
-void writedatafiles(float *psi, int m, int n, int scale) {
+void writedatafiles(double *psi, int m, int n, int scale) {
     std::ofstream cfile, vfile;
-    typedef float vecvel[2];
+    typedef double vecvel[2];
     typedef int vecrgb[3];
 
     vecvel *vel;
