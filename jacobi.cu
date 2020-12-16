@@ -27,7 +27,7 @@ __global__ void jacobikernel(float *psi_d, float *psinew_d, int m, int n, int nu
 
 //void jacobistep(float *psinew, float *psi, int m, int n) {
 //    for (int i = 1; i <= m; i++) {
-//        for (int j = 1; j <= m; j++) {
+//        for (int j = 1; j <= n; j++) {
 //            psinew[i * (m + 2) + j] = 0.25f * (psi[(i - 1) * (m + 2) + j] + psi[(i + 1) * (m + 2) + j] +
 //                                               psi[(i) * (m + 2) + j - 1] + psi[(i) * (m + 2) + j + 1]);
 //        }
@@ -57,6 +57,10 @@ void jacobiiter_gpu(float *psi, int m, int n, int numiter, float &error) {
     jacobikernel<<<blocks, threads>>>(psi_d, psinew_d, m, n, numiter);
 
     cudaMemcpy(psi, psi_d, bytes, cudaMemcpyDeviceToHost);
+
+    for (int i = 0; i<(m+2)*(n+2); i++){
+        std::cout<<psi[i]<<" ";
+    }
 
     float e;
     cudaMemcpyFromSymbol(&e, "d_error", sizeof(e), 0, cudaMemcpyDeviceToHost);
