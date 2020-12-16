@@ -99,7 +99,7 @@ int main(int argc, char **argv) {
     //write output files
 
     writedatafiles(psi, m, n, scalefactor);
-    writeplotfile(m, n, scalefactor)
+    writeplotfile(m, n, scalefactor);
 
     auto end = std::chrono::system_clock::now();
 
