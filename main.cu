@@ -99,6 +99,10 @@ int main(int argc, char **argv) {
 
     //write output files
 
+    for (int i = 0; i<(m+2)*(n+2); i++){
+        std::cout<<psi[i]<<" ";
+    }
+
     writedatafiles(psi, m, n, scalefactor);
     writeplotfile(m, n, scalefactor);
 
