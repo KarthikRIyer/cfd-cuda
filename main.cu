@@ -87,6 +87,11 @@ int main(int argc, char **argv) {
             }
         }
 
+        for (int i = 0; i<(m+2)*(n+2); i++){
+            std::cout<<psi[i]<<" ";
+        }
+        std::cout<<"\n\n";
+
         //print loop info
         if (iter % printfreq == 0) {
             std::cout << "Completed iteration " << iter << "\n";
