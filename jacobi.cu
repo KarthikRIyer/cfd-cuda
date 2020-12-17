@@ -10,16 +10,16 @@ __global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int 
     int col = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (row > 0 && row <= m && col > 0 && col <= n) {
-        for (int i = 1; i <= numiter; i++) {
-            d_error = 0;
-            psinew_d[row * (m + 2) + col] =
-                    0.25f * (psi_d[(row - 1) * (m + 2) + col] + psi_d[(row + 1) * (m + 2) + col] +
-                             psi_d[(row) * (m + 2) + col - 1] + psi_d[(row) * (m + 2) + col + 1]);
+//        for (int i = 1; i <= numiter; i++) {
+//        d_error = 0;
+        psinew_d[row * (m + 2) + col] =
+                0.25f * (psi_d[(row - 1) * (m + 2) + col] + psi_d[(row + 1) * (m + 2) + col] +
+                         psi_d[(row) * (m + 2) + col - 1] + psi_d[(row) * (m + 2) + col + 1]);
 
-            __syncthreads();
-            psi_d[row * (m + 2) + col] = psinew_d[row * (m + 2) + col];
-            __syncthreads();
-        }
+//            __syncthreads();
+//            psi_d[row * (m + 2) + col] = psinew_d[row * (m + 2) + col];
+//            __syncthreads();
+//        }
     }
 }
 
@@ -52,7 +52,10 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     dim3 threads(THREADS, THREADS);
     dim3 blocks(BLOCKS, BLOCKS);
 
-    jacobikernel<<<blocks, threads>>>(psi_d, psinew_d, m, n, numiter);
+    for (int i = 1; i <= numiter; i++) {
+        jacobikernel<<<blocks, threads>>>(psi_d, psinew_d, m, n, numiter);
+        cudaMemcpy(psi_d, psinew_d, bytes, cudaMemcpyDeviceToDevice);
+    }
 
     cudaMemcpy(psi, psi_d, bytes, cudaMemcpyDeviceToHost);
 //
