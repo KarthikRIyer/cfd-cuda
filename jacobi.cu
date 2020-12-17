@@ -52,18 +52,22 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     dim3 threads(THREADS, THREADS);
     dim3 blocks(BLOCKS, BLOCKS);
 
+    for (int i = 0; i<(m+2)*(n+2); i++){
+        std::cout<<psi[i]<<" ";
+    }
+    std::cout<<"\n\n";
+    cudaMemcpy(psi_d, psi, bytes, cudaMemcpyHostToDevice);
     for (int i = 1; i <= numiter; i++) {
-        cudaMemcpy(psi_d, psi, bytes, cudaMemcpyHostToDevice);
         jacobikernel<<<blocks, threads>>>(psi_d, psinew_d, m, n, numiter);
-        cudaMemcpy(psi, psinew_d, bytes, cudaMemcpyDeviceToHost);
-
-        for (int j = 0; j<(m+2)*(n+2); j++){
-            std::cout<<psi[j]<<" ";
-        }
-        std::cout<<"\n\n";
+        cudaMemcpy(psi_d, psinew_d, bytes, cudaMemcpyDeviceToDevice);
     }
 
     cudaMemcpy(psi, psi_d, bytes, cudaMemcpyDeviceToHost);
+
+    for (int i = 0; i<(m+2)*(n+2); i++){
+        std::cout<<psi[i]<<" ";
+    }
+    std::cout<<"\n\n";
 //
 //    for (int i = 0; i<(m+2)*(n+2); i++){
 //        std::cout<<psi[i]<<" ";
