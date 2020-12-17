@@ -6,8 +6,8 @@ __device__ double d_error;
 __global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int numiter) {
 
     // calculate each thread's global row and col
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    int col = blockIdx.y * blockDim.y + threadIdx.y;
+    int row = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (row > 0 && row <= m && col > 0 && col <= n) {
 //        for (int i = 1; i <= numiter; i++) {
