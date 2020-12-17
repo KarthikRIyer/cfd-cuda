@@ -69,6 +69,11 @@ int main(int argc, char **argv) {
     // begin iterative jacobi loop
     std::cout << "Starting main loop...\n\n";
 
+    for (int i = 0; i<(m+2)*(n+2); i++){
+        std::cout<<psi[i]<<" ";
+    }
+    std::cout<<"\n\n";
+
     auto start = std::chrono::system_clock::now();
     for (iter = 1; iter <= numiter; iter++) {
         //calculate psi for next iteration
@@ -86,11 +91,6 @@ int main(int argc, char **argv) {
                 psi[i * (m + 2) + j] = psitmp[i * (m + 2) + j];
             }
         }
-
-        for (int i = 0; i<(m+2)*(n+2); i++){
-            std::cout<<psi[i]<<" ";
-        }
-        std::cout<<"\n\n";
 
         //print loop info
         if (iter % printfreq == 0) {
