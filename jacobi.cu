@@ -75,7 +75,7 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     h_mask[6] = 0;
     h_mask[7] = 0.25;
     h_mask[8] = 0;
-    cudaMemcpyToSymbol(mask, h_mask);
+    cudaMemcpyToSymbol(mask, h_mask, bytes_m);
 
     // allocate memory on gpu
     cudaMalloc(&psi_d, bytes);
