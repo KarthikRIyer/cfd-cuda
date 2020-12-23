@@ -94,7 +94,6 @@ int main(int argc, char **argv) {
 
 //    if (iter > numiter)iter = numiter;
     std::cout << "\n...finished\n";
-    std::cout << "After " << numiter << " iterations, the error is " << error << "\n";
 
     //write output files
 
@@ -107,7 +106,7 @@ int main(int argc, char **argv) {
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
     std::cout << "\n\nelapsed time: " << elapsed_seconds.count() << " s\n";
 
-    //fre un-needed arrays
+    //free un-needed arrays
     delete[] psi;
     delete[] psitmp;
 

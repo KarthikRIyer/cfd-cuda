@@ -1,13 +1,12 @@
 #include "jacobi.h"
 #include <iostream>
 
-__device__ double d_error;
-
 #define MASK_DIM 3
 #define MASK_OFFSET (MASK_DIM/2)
 
 __constant__ double mask[MASK_DIM * MASK_DIM];
 
+/*
 __global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int numiter) {
 
     // calculate each thread's global row and col
@@ -27,6 +26,7 @@ __global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int 
 //        }
     }
 }
+ */
 
 __global__ void convolution_2d(double *matrix, double *result, int N) {
     int row = blockIdx.y * blockDim.y + threadIdx.y;
@@ -40,8 +40,8 @@ __global__ void convolution_2d(double *matrix, double *result, int N) {
     if (row > 0 && row <= N && col > 0 && col <= N) {
         for (int i = 0; i < MASK_DIM; i++) {
             for (int j = 0; j < MASK_DIM; j++) {
-                if (start_r + i >= 0 && start_r + i <= N+1) {
-                    if (start_c + j >= 0 && start_c + j <= N+1) {
+                if (start_r + i >= 0 && start_r + i <= N + 1) {
+                    if (start_c + j >= 0 && start_c + j <= N + 1) {
                         temp += matrix[(start_r + i) * (N + 2) + (start_c + j)] * mask[i * MASK_DIM + j];
                     }
                 }
@@ -51,15 +51,6 @@ __global__ void convolution_2d(double *matrix, double *result, int N) {
     }
 }
 
-//void jacobistep(double *psinew, double *psi, int m, int n) {
-//    for (int i = 1; i <= m; i++) {
-//        for (int j = 1; j <= n; j++) {
-//            psinew[i * (m + 2) + j] = 0.25f * (psi[(i - 1) * (m + 2) + j] + psi[(i + 1) * (m + 2) + j] +
-//                                               psi[(i) * (m + 2) + j - 1] + psi[(i) * (m + 2) + j + 1]);
-//        }
-//    }
-//}
-
 void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
 
     double *psi_d;
@@ -67,6 +58,7 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     size_t bytes = sizeof(double) * (m + 2) * (n + 2);
     size_t bytes_m = sizeof(double) * 3 * 3;
 
+    //define mask
     double *h_mask = new double[3 * 3];
     h_mask[0] = 0;
     h_mask[1] = 0.25;
@@ -84,8 +76,8 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     cudaMalloc(&psinew_d, bytes);
 
     // copy data to gpu
-//    cudaMemcpy(psi_d, psi, bytes, cudaMemcpyHostToDevice);
-//    cudaMemcpy(psinew_d, psinew, bytes, cudaMemcpyHostToDevice);
+    cudaMemcpy(psi_d, psi, bytes, cudaMemcpyHostToDevice);
+    cudaMemcpy(psinew_d, psi_d, bytes, cudaMemcpyDeviceToDevice);
 
     int THREADS = 16;
     int BLOCKS = (m + 2 + THREADS - 1) / THREADS;
@@ -93,12 +85,6 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     dim3 threads(THREADS, THREADS);
     dim3 blocks(BLOCKS, BLOCKS);
 
-//    for (int i = 0; i < (m + 2) * (n + 2); i++) {
-//        std::cout << psi[i] << " ";
-//    }
-//    std::cout << "\n\n";
-    cudaMemcpy(psi_d, psi, bytes, cudaMemcpyHostToDevice);
-    cudaMemcpy(psinew_d, psi_d, bytes, cudaMemcpyDeviceToDevice);
     for (int i = 1; i <= numiter; i++) {
 //        jacobikernel<<<blocks, threads>>>(psi_d, psinew_d, m, n, numiter);
         convolution_2d<<<blocks, threads>>>(psi_d, psinew_d, m);
@@ -107,25 +93,12 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
 
     cudaMemcpy(psi, psi_d, bytes, cudaMemcpyDeviceToHost);
 
-//    for (int i = 0; i < (m + 2) * (n + 2); i++) {
-//        std::cout << psi[i] << " ";
-//    }
-//    std::cout << "\n\n";
-//
-//    for (int i = 0; i<(m+2)*(n+2); i++){
-//        std::cout<<psi[i]<<" ";
-//    }
-
-//    double e;
-//    cudaMemcpyFromSymbol(&e, "d_error", sizeof(e), 0, cudaMemcpyDeviceToHost);
-//    error = e;
-
     cudaFree(psi_d);
     cudaFree(psinew_d);
     delete[] h_mask;
 }
 
-// parallelise
+// serial cpu
 void jacobistep(double *psinew, double *psi, int m, int n) {
     for (int i = 1; i <= m; i++) {
         for (int j = 1; j <= m; j++) {
@@ -135,7 +108,7 @@ void jacobistep(double *psinew, double *psi, int m, int n) {
     }
 }
 
-// parallelise
+// serial cpu
 double deltasq(double *newarr, double *oldarr, int m, int n) {
     double dsq = 0;
     double tmp;
