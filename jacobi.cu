@@ -37,16 +37,18 @@ __global__ void convolution_2d(double *matrix, double *result, int N) {
 
     double temp = 0;
 
-    for (int i = 0; i < MASK_DIM; i++) {
-        for (int j = 0; j < MASK_DIM; j++) {
-            if (start_r + i >= 1 && start_r + i <= N) {
-                if (start_c + j >= 1 && start_c + j <= N) {
-                    temp += matrix[(start_r + i) * (N+2) + (start_c + j)] * mask[i * MASK_DIM + j];
+    if (row > 0 && row <= m && col > 0 && col <= n) {
+        for (int i = 0; i < MASK_DIM; i++) {
+            for (int j = 0; j < MASK_DIM; j++) {
+                if (start_r + i >= 0 && start_r + i <= N+1) {
+                    if (start_c + j >= 0 && start_c + j <= N+1) {
+                        temp += matrix[(start_r + i) * (N + 2) + (start_c + j)] * mask[i * MASK_DIM + j];
+                    }
                 }
             }
         }
+        result[row * (N + 2) + col] = temp;
     }
-    result[row * (N+2) + col] = temp;
 }
 
 //void jacobistep(double *psinew, double *psi, int m, int n) {
