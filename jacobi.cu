@@ -35,7 +35,7 @@ __global__ void convolution_2d(double *matrix, double *result, int N) {
     int start_r = row - MASK_OFFSET;
     int start_c = col - MASK_OFFSET;
 
-    int temp = 0;
+    double temp = 0;
 
     for (int i = 0; i < MASK_DIM; i++) {
         for (int j = 0; j < MASK_DIM; j++) {
