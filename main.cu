@@ -7,7 +7,7 @@
 #include "cfdio.h"
 
 int main(int argc, char **argv) {
-    int printfreq = 1000;
+//    int printfreq = 1000;
     float error, bnorm;
 
     //main arrays
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 
     if (iter > numiter)iter = numiter;
     std::cout << "\n...finished\n";
-    std::cout << "After " << iter << " iterations, the error is " << error << "\n";
+//    std::cout << "After " << iter << " iterations, the error is " << error << "\n";
 
     //write output files
 
