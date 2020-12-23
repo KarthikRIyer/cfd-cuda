@@ -48,11 +48,11 @@ __global__ void convolution_2d(double *matrix, double *result, int N) {
             for (int j = 0; j < MASK_DIM; j++) {
 
                 if (start_c + j <= N + 1 && start_r + i <= N + 1) {
-                    if (threadIdx.y + i >= blockDim.y || threadIdx.x + j >= blockDim.x) {
+//                    if (threadIdx.y + i >= blockDim.y || threadIdx.x + j >= blockDim.x) {
                         temp += matrix[(start_r + i) * (N + 2) + (start_c + j)] * mask[i * MASK_DIM + j];
-                    } else {
-                        temp += s_matrix[(threadIdx.y + i) * blockDim.x + (threadIdx.x + j)] * mask[i * MASK_DIM + j];
-                    }
+//                    } else {
+//                        temp += s_matrix[(threadIdx.y + i) * blockDim.x + (threadIdx.x + j)] * mask[i * MASK_DIM + j];
+//                    }
                 }
 
             }
