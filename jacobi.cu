@@ -3,6 +3,11 @@
 
 __device__ double d_error;
 
+#define MASK_DIM 3
+#define MASK_OFFSET (MASK_DIM/2)
+
+__constant__ double mask[MASK_DIM * MASK_DIM];
+
 __global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int numiter) {
 
     // calculate each thread's global row and col
@@ -23,6 +28,27 @@ __global__ void jacobikernel(double *psi_d, double *psinew_d, int m, int n, int 
     }
 }
 
+__global__ void convolution_2d(double *matrix, double *result, int N) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+
+    int start_r = row - MASK_OFFSET;
+    int start_c = col - MASK_OFFSET;
+
+    int temp = 0;
+
+    for (int i = 0; i < MASK_DIM; i++) {
+        for (int j = 0; j < MASK_DIM; j++) {
+            if (start_r + i >= 1 && start_r + i < N) {
+                if (start_c + j >= 0 && start_c + j < N) {
+                    temp += matrix[(start_r + i) * N + (start_c + j)] * mask[i * MASK_DIM + j];
+                }
+            }
+        }
+    }
+    result[row * N + col] = temp;
+}
+
 //void jacobistep(double *psinew, double *psi, int m, int n) {
 //    for (int i = 1; i <= m; i++) {
 //        for (int j = 1; j <= n; j++) {
@@ -37,6 +63,19 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     double *psi_d;
     double *psinew_d;
     size_t bytes = sizeof(double) * (m + 2) * (n + 2);
+    size_t bytes_m = sizeof(double) * 3 * 3;
+
+    double *h_mask = new double[3 * 3];
+    h_mask[0] = 0;
+    h_mask[1] = 0.25;
+    h_mask[2] = 0;
+    h_mask[3] = 0.25;
+    h_mask[4] = 0;
+    h_mask[5] = 0.25;
+    h_mask[6] = 0;
+    h_mask[7] = 0.25;
+    h_mask[8] = 0;
+    cudaMemcpyToSymbol(mask, h_mask);
 
     // allocate memory on gpu
     cudaMalloc(&psi_d, bytes);
@@ -52,22 +91,23 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
     dim3 threads(THREADS, THREADS);
     dim3 blocks(BLOCKS, BLOCKS);
 
-    for (int i = 0; i<(m+2)*(n+2); i++){
-        std::cout<<psi[i]<<" ";
-    }
-    std::cout<<"\n\n";
+//    for (int i = 0; i < (m + 2) * (n + 2); i++) {
+//        std::cout << psi[i] << " ";
+//    }
+//    std::cout << "\n\n";
     cudaMemcpy(psi_d, psi, bytes, cudaMemcpyHostToDevice);
     for (int i = 1; i <= numiter; i++) {
-        jacobikernel<<<blocks, threads>>>(psi_d, psinew_d, m, n, numiter);
+//        jacobikernel<<<blocks, threads>>>(psi_d, psinew_d, m, n, numiter);
+        convolution_2d<<<blocks, threads>>>(psi_d, psinew_d, m);
         cudaMemcpy(psi_d, psinew_d, bytes, cudaMemcpyDeviceToDevice);
     }
 
     cudaMemcpy(psi, psi_d, bytes, cudaMemcpyDeviceToHost);
 
-    for (int i = 0; i<(m+2)*(n+2); i++){
-        std::cout<<psi[i]<<" ";
-    }
-    std::cout<<"\n\n";
+//    for (int i = 0; i < (m + 2) * (n + 2); i++) {
+//        std::cout << psi[i] << " ";
+//    }
+//    std::cout << "\n\n";
 //
 //    for (int i = 0; i<(m+2)*(n+2); i++){
 //        std::cout<<psi[i]<<" ";
@@ -79,6 +119,7 @@ void jacobiiter_gpu(double *psi, int m, int n, int numiter, double &error) {
 
     cudaFree(psi_d);
     cudaFree(psinew_d);
+    delete[] h_mask;
 }
 
 // parallelise
