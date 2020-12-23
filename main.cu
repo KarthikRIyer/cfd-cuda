@@ -92,19 +92,19 @@ int main(int argc, char **argv) {
 
     jacobiiter_gpu(psi, m, n, numiter, error);
 
+    auto end = std::chrono::system_clock::now();
+
 //    if (iter > numiter)iter = numiter;
     std::cout << "\n...finished\n";
+
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "\n\nelapsed time: " << elapsed_seconds.count() << " s\n";
 
     //write output files
 
     writedatafiles(psi, m, n, scalefactor);
     writeplotfile(m, n, scalefactor);
-
-    auto end = std::chrono::system_clock::now();
-
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-    std::cout << "\n\nelapsed time: " << elapsed_seconds.count() << " s\n";
 
     //free un-needed arrays
     delete[] psi;
