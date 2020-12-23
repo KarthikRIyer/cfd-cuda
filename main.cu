@@ -8,7 +8,7 @@
 
 int main(int argc, char **argv) {
 //    int printfreq = 1000;
-    float error, bnorm;
+    float bnorm;
 
     //main arrays
     float *psi;
@@ -75,26 +75,14 @@ int main(int argc, char **argv) {
         //calculate psi for next iteration
         jacobistep(psitmp, psi, m, n);
 
-//        if (iter == numiter) {
-//            error = deltasq(psitmp, psi, m, n);
-//            error = std::sqrt(error);
-//            error = error / bnorm;
-//        }
-
         //copy back
         for (int i = 1; i <= m; i++) {
             for (int j = 1; j <= m; j++) {
                 psi[i * (m + 2) + j] = psitmp[i * (m + 2) + j];
             }
         }
-
-        //print loop info
-//        if (iter % printfreq == 0) {
-//            std::cout << "Completed iteration " << iter << "\n";
-//        }
     }
-
-    if (iter > numiter)iter = numiter;
+    auto end = std::chrono::system_clock::now();
     std::cout << "\n...finished\n";
 //    std::cout << "After " << iter << " iterations, the error is " << error << "\n";
 
@@ -102,8 +90,6 @@ int main(int argc, char **argv) {
 
     writedatafiles(psi, m, n, scalefactor);
     writeplotfile(m, n, scalefactor);
-
-    auto end = std::chrono::system_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
