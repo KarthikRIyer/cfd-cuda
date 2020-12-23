@@ -63,7 +63,8 @@ void writedatafiles(float *psi, int m, int n, int scale) {
 void writeplotfile(int m, int n, int scale) {
     std::ofstream gnuplot;
     gnuplot.open("cuda-cfd.plt");
-    gnuplot << "set size square\n";
+    gnuplot << "set terminal png size 800,800\n";
+    gnuplot << "set output 'plt.png'\n";
     gnuplot << "set key off\n";
     gnuplot << "unset xtics\n";
     gnuplot << "unset ytics\n";
