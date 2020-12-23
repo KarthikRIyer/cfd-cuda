@@ -68,10 +68,6 @@ int main(int argc, char **argv) {
 
     // begin iterative jacobi loop
     std::cout << "Starting main loop...\n\n";
-
-    for (int i = 0; i<(m+2)*(n+2); i++){
-        std::cout<<psi[i]<<" ";
-    }
     std::cout<<"\n\n";
 
     auto start = std::chrono::system_clock::now();
