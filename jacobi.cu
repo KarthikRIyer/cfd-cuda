@@ -41,7 +41,7 @@ __global__ void convolution_2d(double *matrix, double *result, int N) {
         for (int j = 0; j < MASK_DIM; j++) {
             if (start_r + i >= 1 && start_r + i <= N) {
                 if (start_c + j >= 0 && start_c + j <= N) {
-                    temp += matrix[(start_r + i) * N + (start_c + j)] * mask[i * MASK_DIM + j];
+                    temp += matrix[(start_r + i) * (N+2) + (start_c + j)] * mask[i * MASK_DIM + j];
                 }
             }
         }
