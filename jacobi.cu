@@ -40,7 +40,7 @@ __global__ void convolution_2d(double *matrix, double *result, int N) {
     double temp = 0;
 
     if (row > 0 && row <= N && col > 0 && col <= N) {
-        s_matrix[threadIdx.y * (N + 2) + threadIdx.x] = matrix[row * (N + 2) + col];
+        s_matrix[threadIdx.y * blockDim.x + threadIdx.x] = matrix[row * (N + 2) + col];
         __syncthreads();
         for (int i = 0; i < MASK_DIM; i++) {
             for (int j = 0; j < MASK_DIM; j++) {
@@ -49,7 +49,7 @@ __global__ void convolution_2d(double *matrix, double *result, int N) {
                         threadIdx.x + i >= blockDim.x && start_c + j >= 0 && start_c + j <= N + 1) {
                         temp += matrix[(start_r + i) * (N + 2) + (start_c + j)] * mask[i * MASK_DIM + j];
                     } else {
-                        temp += s_matrix[threadIdx.y * (N + 2) + threadIdx.x] * mask[i * MASK_DIM + j];
+                        temp += s_matrix[threadIdx.y * blockDim.x + threadIdx.x] * mask[i * MASK_DIM + j];
                     }
                 }
             }
