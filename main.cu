@@ -79,11 +79,11 @@ int main(int argc, char **argv) {
         //calculate psi for next iteration
         jacobistep(psitmp, psi, m, n);
 
-        if (iter == numiter) {
-            error = deltasq(psitmp, psi, m, n);
-            error = std::sqrt(error);
-            error = error / bnorm;
-        }
+//        if (iter == numiter) {
+//            error = deltasq(psitmp, psi, m, n);
+//            error = std::sqrt(error);
+//            error = error / bnorm;
+//        }
 
         //copy back
         for (int i = 1; i <= m; i++) {
@@ -93,9 +93,9 @@ int main(int argc, char **argv) {
         }
 
         //print loop info
-        if (iter % printfreq == 0) {
-            std::cout << "Completed iteration " << iter << "\n";
-        }
+//        if (iter % printfreq == 0) {
+//            std::cout << "Completed iteration " << iter << "\n";
+//        }
     }
 
     if (iter > numiter)iter = numiter;
@@ -103,10 +103,6 @@ int main(int argc, char **argv) {
     std::cout << "After " << iter << " iterations, the error is " << error << "\n";
 
     //write output files
-
-    for (int i = 0; i<(m+2)*(n+2); i++){
-        std::cout<<psi[i]<<" ";
-    }
 
     writedatafiles(psi, m, n, scalefactor);
     writeplotfile(m, n, scalefactor);
