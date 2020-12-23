@@ -78,8 +78,8 @@ int main(int argc, char **argv) {
         }
 
         //copy back
-        for (int i = 1; i <= m; i++) {
-            for (int j = 1; j <= m; j++) {
+        for (int i = 0; i <= m+1; i++) {
+            for (int j = 0; j <= m+1; j++) {
                 psi[i * (m + 2) + j] = psitmp[i * (m + 2) + j];
             }
         }
